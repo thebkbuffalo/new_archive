@@ -36,9 +36,13 @@ class Archive
   end
 
   def get_data
-    gh = open('http://data.githubarchive.org')
-    js = Zlib::GzipReader.new(gh).read
-    # bq = BigQuery.new(opts)
+    # gh = open('http://data.githubarchive.org')
+    # js = Zlib::GzipReader.new(gh).read
+    opts = {}
+    opts['client_id'] =
+    opts['service_email'] =
+    opts['key'] =
+    opts['project_id'] = 
   end
 
 
