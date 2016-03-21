@@ -8,7 +8,11 @@ class Archive
   require 'google/api_client/client_secrets'
   require 'google/api_client/auth/installed_app'
   require 'big_query'
-  require 'gcloud'
+  # require 'gcloud'
+  # require 'googleauth'
+  # scopes =  ['https://www.googleapis.com/auth/bigquery']
+  # authorization = Google::Auth.get_application_default(scopes)
+
 
   # gz = open('http://data.githubarchive.org/2015-01-01-12.json.gz')
   # js = Zlib::GzipReader.new(gz).read
@@ -38,15 +42,16 @@ class Archive
   end
 
   def get_data
-    opts = {}
-    opts['client_id'] = '467394000337-0vbsg406ur7heob3lkkb72euvdcc3v0j.apps.googleusercontent.com'
-    opts['service_email'] = ''
-    opts['key'] = 'zLDUcU6sjESsreYCWuhK0Dig'
-    opts['project_id'] = '467394000337'
+    # require 'google/apis/bigquery'
     # gcloud = Gcloud.new 467394000337
     # bg = gcloud.bigquery
-    bg = BigQuery.new(opts)
-    @hash = bq.query(
+    opts = {}
+    opts['client_id']     = '100498757788084069982'
+    opts['service_email'] = 'gharchiver@appspot.gserviceaccount.com'
+    opts['key']           = '70f22dd8429d6ef0c010852051682c7f082eb5d5'
+    opts['project_id']    = 'gharchiver'
+    bq = BigQuery::Client.new
+    @hash =bq.query(
       "SELECT repository_name, count(repository_name) as pushes, repository_description, repository_url
       FROM [githubarchive:github.timeline]
       WHERE type='#{@event}'
@@ -57,7 +62,7 @@ class Archive
       ORDER BY pushes DESC
       LIMIT #{@amount}"
     )
-    puts @hash
+    output
   end
 
 
