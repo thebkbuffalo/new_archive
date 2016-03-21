@@ -8,6 +8,7 @@ class Archive
   require 'google/api_client/client_secrets'
   require 'google/api_client/auth/installed_app'
   require 'big_query'
+  require 'gcloud'
 
   # gz = open('http://data.githubarchive.org/2015-01-01-12.json.gz')
   # js = Zlib::GzipReader.new(gz).read
@@ -20,6 +21,7 @@ class Archive
   def initialize
     puts 'GitHub Archiver Challenge'
     get_input
+    get_data
   end
 
   def get_input
@@ -36,13 +38,26 @@ class Archive
   end
 
   def get_data
-    # gh = open('http://data.githubarchive.org')
-    # js = Zlib::GzipReader.new(gh).read
     opts = {}
-    opts['client_id'] =
-    opts['service_email'] =
-    opts['key'] =
-    opts['project_id'] = 
+    opts['client_id'] = '467394000337-0vbsg406ur7heob3lkkb72euvdcc3v0j.apps.googleusercontent.com'
+    opts['service_email'] = ''
+    opts['key'] = 'zLDUcU6sjESsreYCWuhK0Dig'
+    opts['project_id'] = '467394000337'
+    # gcloud = Gcloud.new 467394000337
+    # bg = gcloud.bigquery
+    bg = BigQuery.new(opts)
+    @hash = bq.query(
+      "SELECT repository_name, count(repository_name) as pushes, repository_description, repository_url
+      FROM [githubarchive:github.timeline]
+      WHERE type='#{@event}'
+      AND repository_language='Ruby'
+      AND PARSE_UTC_USEC(created_at) >= PARSE_UTC_USEC('#{@after}')
+      AND PARSE_UTC_USEC(created_at) < PARSE_UTC_USEC('#{@before}')
+      GROUP BY repository_name, repository_description, repository_url
+      ORDER BY pushes DESC
+      LIMIT #{@amount}"
+    )
+    puts @hash
   end
 
 
