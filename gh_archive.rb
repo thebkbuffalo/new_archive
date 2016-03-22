@@ -19,7 +19,7 @@ class Archive
 
   def initialize
     puts 'GitHub Archiver Challenge'
-    get_input
+    # get_input
     get_data
   end
 
@@ -45,18 +45,32 @@ class Archive
     opts['project_id']    = 'gharchiver-1257'
     bq = BigQuery::Client.new(opts)
 
-    @hash = bq.query(
-      "SELECT repository_name, count(repository_name) as pushes, repository_description, repository_url
-      FROM [githubarchive:github.timeline]
-      WHERE type='#{@event}'
-      AND repository_language='Ruby'
-      AND PARSE_UTC_USEC(created_at) >= PARSE_UTC_USEC('#{@after}')
-      AND PARSE_UTC_USEC(created_at) < PARSE_UTC_USEC('#{@before}')
-      GROUP BY repository_name, repository_description, repository_url
-      ORDER BY pushes DESC
-      LIMIT #{@amount}"
+    @results = bq.query(
+      # "SELECT repository_name, count(repository_name) as pushes, repository_description, repository_url
+      # FROM [githubarchive:github.timeline]
+      # WHERE type='#{@event}'
+      # AND repository_language='Ruby'
+      # AND PARSE_UTC_USEC(created_at) >= PARSE_UTC_USEC('#{@after}')
+      # AND PARSE_UTC_USEC(created_at) < PARSE_UTC_USEC('#{@before}')
+      # GROUP BY repository_name, repository_description, repository_url
+      # ORDER BY pushes DESC
+      # LIMIT #{@amount}"
+      "SELECT TOP(corpus, 10) as title, COUNT(*) as unique_words " +
+      "FROM [publicdata:samples.shakespeare]"
     )
-    puts @hash
+    output
+  end
+
+  def output
+
+    # repos = @results['rows']
+    # repos.each do |row|
+    #   puts "#{repo['f'][3]['v'][19..-1]} - #{repo['f'][1]['v']} events"
+    # end
+    rows = @results['rows']
+    rows.each do |row|
+      puts "#{row['f']}: #{row['v']}"
+    end
   end
 
 
